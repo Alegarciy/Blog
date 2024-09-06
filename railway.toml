@@ -1,10 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = """
-  curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-  apt-get install -y nodejs
-  cd express-api && npm install
-"""
+buildCommand = "cd express-api && npm install"
 
 [deploy]
 startCommand = "node express-api/server.js"
@@ -13,3 +9,6 @@ healthcheckTimeout = 100
 
 [env]
 NODE_ENV = "production"
+
+[nixpacks]
+node-version = "16.x"
