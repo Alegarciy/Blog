@@ -1,14 +1,11 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "cd express-api && npm install"
+builder = "DOCKERFILE"
+dockerfilePath = "express-api/Dockerfile"
 
 [deploy]
-startCommand = "node express-api/server.js"
+startCommand = "node server.js"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 100
 
 [env]
 NODE_ENV = "production"
-
-[nixpacks]
-node-version = "16.x"

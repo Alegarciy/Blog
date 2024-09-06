@@ -1,11 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-const db = new sqlite3.Database('./blogs-db', (err) => {
-  if (err) {
-    console.error('Error opening database', err);
-  } else {
-    console.log('Database connected');
-  }
-});
+const dbPath = path.resolve(__dirname, 'blogs-db');
+const db = new sqlite3.Database(dbPath);
 
 module.exports = db;
