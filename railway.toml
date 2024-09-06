@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd express-api && npm install"
+
+[deploy]
+startCommand = "node express-api/server.js"
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 100
+
+[env]
+NODE_ENV = "production"
