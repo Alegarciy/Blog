@@ -1,8 +1,0 @@
-[phases.setup]
-  nodejs = "16.x"  # Specify the version of Node.js you need
-
-[phases.build]
-  commands = ["cd express-api && npm install"]
-
-[phases.start]
-  commands = ["node express-api/server.js"]

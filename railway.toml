@@ -1,6 +1,10 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd express-api && npm install"
+buildCommand = """
+  curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+  apt-get install -y nodejs
+  cd express-api && npm install
+"""
 
 [deploy]
 startCommand = "node express-api/server.js"
