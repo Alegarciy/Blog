@@ -1,51 +1,74 @@
 const express = require('express');
 const router = express.Router();
-
-let posts = [
-  { id: 1, title: "First Blog Post", excerpt: "This is the excerpt for the first blog post." },
-  { id: 2, title: "Second Blog Post", excerpt: "This is the excerpt for the second blog post." },
-];
+const db = require('../database');
 
 // GET all posts
 router.get('/', (req, res) => {
-  res.json(posts);
+  db.all('SELECT * FROM posts', [], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
 });
 
 // GET a single post
-router.get('/:id', (req, res) => {
-  const post = posts.find(p => p.id === parseInt(req.params.id));
-  if (!post) return res.status(404).json({ message: 'Post not found' });
-  res.json(post);
+router.get('/:title', (req, res) => {
+  db.get('SELECT * FROM posts WHERE title = ?', [req.params.title], (err, row) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (!row) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+    res.json(row);
+  });
 });
 
 // CREATE a new post
 router.post('/', (req, res) => {
-  const newPost = {
-    id: posts.length + 1,
-    title: req.body.title,
-    excerpt: req.body.excerpt
-  };
-  posts.push(newPost);
-  res.status(201).json(newPost);
+  const { title, content } = req.body;
+  db.run('INSERT INTO posts (title, content) VALUES (?, ?)', [title, content], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.status(201).json({ id: this.lastID, title, content });
+  });
 });
 
 // UPDATE a post
-router.put('/:id', (req, res) => {
-  const post = posts.find(p => p.id === parseInt(req.params.id));
-  if (!post) return res.status(404).json({ message: 'Post not found' });
-
-  post.title = req.body.title;
-  post.excerpt = req.body.excerpt;
-  res.json(post);
+router.put('/:title', (req, res) => {
+  const { content } = req.body;
+  db.run('UPDATE posts SET content = ? WHERE title = ?', [content, req.params.title], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+    res.json({ title: req.params.title, content });
+  });
 });
 
 // DELETE a post
-router.delete('/:id', (req, res) => {
-  const index = posts.findIndex(p => p.id === parseInt(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Post not found' });
-
-  posts.splice(index, 1);
-  res.status(204).send();
+router.delete('/:title', (req, res) => {
+  db.run('DELETE FROM posts WHERE title = ?', req.params.title, function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+    res.status(204).send();
+  });
 });
 
 module.exports = router;
